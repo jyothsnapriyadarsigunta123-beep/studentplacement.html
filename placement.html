@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Student Placement Management</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f4f6f9;
+            color: #333;
+        }
+
+        header {
+            background: #1e3a8a;
+            color: white;
+            text-align: center;
+            padding: 25px;
+        }
+
+        header h1 {
+            margin-bottom: 8px;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 30px auto;
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            color: #1e3a8a;
+            margin: 20px 0 15px;
+        }
+
+        form {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 15px;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #1e3a8a;
+        }
+
+        button {
+            grid-column: span 2;
+            padding: 12px;
+            background: #1e3a8a;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #162d6b;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+
+        th {
+            background: #1e3a8a;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .eligible {
+            color: green;
+            font-weight: bold;
+        }
+
+        .not-eligible {
+            color: red;
+            font-weight: bold;
+        }
+
+        .delete-btn {
+            background: #dc2626;
+            color: white;
+            border: none;
+            padding: 7px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .delete-btn:hover {
+            background: #b91c1c;
+        }
+
+        .clear-btn {
+            background: #dc2626;
+            margin-top: 15px;
+        }
+
+        .clear-btn:hover {
+            background: #b91c1c;
+        }
+
+        @media (max-width: 768px) {
+
+            form {
+                grid-template-columns: 1fr;
+            }
+
+            button {
+                grid-column: span 1;
+            }
+
+            .container {
+                width: 95%;
+                overflow-x: auto;
+            }
+
+            table {
+                min-width: 1000px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>Student Placement Management System</h1>
+        <p>Student Registration and Placement Eligibility</p>
+    </header>
+
+    <div class="container">
+
+        <h2>Add Student</h2>
+
+        <form id="studentForm">
+
+            <input
+                type="text"
+                id="name"
+                placeholder="Student Name"
+                required
+            >
+
+            <input
+                type="number"
+                id="cgpa"
+                step="0.01"
+                min="0"
+                max="10"
+                placeholder="CGPA"
+                required
+            >
+
+            <input
+                type="text"
+                id="role"
+                placeholder="Target Role"
+                required
+            >
+
+            <input
+                type="text"
+                id="project"
+                placeholder="Project"
+                required
+            >
+
+            <input
+                type="text"
+                id="skills"
+                placeholder="Skills (Python Java HTML)"
+                required
+            >
+
+            <button type="submit">
+                Add Student
+            </button>
+
+        </form>
+
+
+        <h2>Student Report</h2>
+
+        <table>
+
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>CGPA</th>
+                    <th>Role</th>
+                    <th>Project</th>
+                    <th>Skills</th>
+                    <th>Eligibility</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+
+            <tbody id="studentTable">
+            </tbody>
+
+        </table>
+
+        <button class="clear-btn" onclick="clearStudents()">
+            Clear All Students
+        </button>
+
+    </div>
+
+
+    <script>
+
+        // Student ID counter
+        let studentId = 1;
+
+
+        // Get form and table
+        const form = document.getElementById("studentForm");
+        const studentTable = document.getElementById("studentTable");
+
+
+        // Add Student
+        form.addEventListener("submit", function(event) {
+
+            // Prevent page refresh
+            event.preventDefault();
+
+
+            // Get input values
+            const name = document.getElementById("name").value.trim();
+
+            const cgpa = parseFloat(
+                document.getElementById("cgpa").value
+            );
+
+            const role = document.getElementById("role").value.trim();
+
+            const project = document.getElementById("project").value.trim();
+
+            const skills = document.getElementById("skills").value.trim();
+
+
+            // Check eligibility
+            // Minimum CGPA = 7.0
+            const eligible =
+                cgpa >= 7.0 &&
+                project !== "" &&
+                skills !== "";
+
+
+            // Create new table row
+            const row = document.createElement("tr");
+
+
+            // Add data to row
+            row.innerHTML = `
+
+                <td>${studentId}</td>
+
+                <td>${name}</td>
+
+                <td>${cgpa.toFixed(2)}</td>
+
+                <td>${role}</td>
+
+                <td>${project}</td>
+
+                <td>${skills}</td>
+
+                <td class="${eligible ? "eligible" : "not-eligible"}">
+
+                    ${eligible ? "Eligible" : "Not Eligible"}
+
+                </td>
+
+                <td>
+
+                    <button
+                        class="delete-btn"
+                        onclick="deleteStudent(this)"
+                    >
+                        Delete
+                    </button>
+
+                </td>
+
+            `;
+
+
+            // Add row to table
+            studentTable.appendChild(row);
+
+
+            // Increase ID
+            studentId++;
+
+
+            // Clear form
+            form.reset();
+
+        });
+
+
+        // Delete individual student
+        function deleteStudent(button) {
+
+            // Find the row and remove it
+            const row = button.parentElement.parentElement;
+
+            row.remove();
+
+        }
+
+
+        // Clear all students
+        function clearStudents() {
+
+            if (confirm("Are you sure you want to delete all students?")) {
+
+                studentTable.innerHTML = "";
+
+                studentId = 1;
+
+            }
+
+        }
+
+    </script>
+
+</body>
+</html>
